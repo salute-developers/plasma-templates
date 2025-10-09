@@ -95,7 +95,7 @@ if [[ "$NO_CACHE" == "true" ]]; then
 fi
 
 set -x
-DOCKER_BUILDKIT=1 docker build --no-cache --platform=linux/amd64 "${BUILD_ARGS[@]}" "$CONTEXT_DIR"
+DOCKER_BUILDKIT=1 docker build "${BUILD_ARGS[@]}" "$CONTEXT_DIR"
 set +x
 
 echo "✅ Built image: $IMAGE_NAME:$IMAGE_TAG"

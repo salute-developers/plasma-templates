@@ -2,7 +2,6 @@
 
 # Значения по умолчанию
 SNAPSHOT="false"
-COMPOSE="false"
 OUTPUT_DIR="./designsystem/library/"
 
 # Разбираем именованные аргументы
@@ -28,10 +27,6 @@ while [[ $# -gt 0 ]]; do
       SNAPSHOT="$2"
       shift 2
       ;;
-    --compose)
-      COMPOSE="$2"
-      shift 2
-      ;;
     --outputDir)
       OUTPUT_DIR="$2"
       shift 2
@@ -45,7 +40,7 @@ done
 
 # Проверка обязательных параметров
 if [ -z "$NAME" ] || [ -z "$VERSION_MAJOR" ] || [ -z "$VERSION_MINOR" ] || [ -z "$VERSION_PATCH" ]; then
-  echo "Использование: $0 --name <artifactId> --versionMajor <X> --versionMinor <Y> --versionPatch <Z> [--snapshot true|false] [--compose true|false] [--outputDir <path>]"
+  echo "Использование: $0 --name <artifactId> --versionMajor <X> --versionMinor <Y> --versionPatch <Z> [--snapshot true|false] [--outputDir <path>]"
   exit 1
 fi
 
