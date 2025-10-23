@@ -8,9 +8,7 @@ set -euo pipefail
 #   ./build-runner.sh --compose=true           # pass COMPOSE build-arg
 #   ./build-runner.sh -n plasma/android-runner -t 0.1
 #   ./build-runner.sh --platform linux/amd64   # build for amd64 on Apple Silicon
-#   ./build-runner.sh --no-cache
-#   ./build-runner.sh --push                   # push to registry after build
-#   ./build-runner.sh --save android-runner.tar.gz   # export image as tar.gz
+#   ./build-runner.sh --no-cache               # disable build cache
 #
 
 IMAGE_NAME="plasma/android-runner"
@@ -18,14 +16,13 @@ IMAGE_TAG="dev"
 COMPOSE_ARG="false"
 PLATFORM=""
 NO_CACHE="false"
-PUSH="false"
 SAVE_PATH=""
 DOCKERFILE="android_runner.Dockerfile"
 CONTEXT_DIR="."
 
 usage() {
   cat <<EOF
-Build android runner Docker image.
+Build android runner Docker image (local only).
 
 Options:
   -n, --name <name>        Image name (default: $IMAGE_NAME)
@@ -33,7 +30,6 @@ Options:
       --compose <bool>     Build arg COMPOSE=true|false (default: $COMPOSE_ARG)
       --platform <plat>    e.g. linux/amd64 or linux/arm64
       --no-cache           Disable build cache
-      --push               Push image after successful build
       --save <path>        Save image to a gzipped tar at <path>
   -h, --help               Show this help
 
@@ -56,8 +52,6 @@ while [[ $# -gt 0 ]]; do
       PLATFORM="$2"; shift 2;;
     --no-cache)
       NO_CACHE="true"; shift 1;;
-    --push)
-      PUSH="true"; shift 1;;
     --save)
       SAVE_PATH="$2"; shift 2;;
     -h|--help)
@@ -84,6 +78,7 @@ BUILD_ARGS=(
   -f "$DOCKERFILE"
   -t "$IMAGE_NAME:$IMAGE_TAG"
   --build-arg "COMPOSE=$COMPOSE_ARG"
+  --label "project=android-runner"
 )
 
 if [[ -n "$PLATFORM" ]]; then
@@ -98,15 +93,7 @@ set -x
 DOCKER_BUILDKIT=1 docker build "${BUILD_ARGS[@]}" "$CONTEXT_DIR"
 set +x
 
-echo "✅ Built image: $IMAGE_NAME:$IMAGE_TAG"
-
-echo "ℹ️  To use it in another Dockerfile:"
-echo "    FROM $IMAGE_NAME:$IMAGE_TAG"
-
-if [[ "$PUSH" == "true" ]]; then
-  echo "📤 Pushing $IMAGE_NAME:$IMAGE_TAG ..."
-  docker push "$IMAGE_NAME:$IMAGE_TAG"
-fi
+echo "✅ Built image: $IMAGE_NAME:$IMAGE_TAG (local Docker)"
 
 if [[ -n "$SAVE_PATH" ]]; then
   echo "💾 Saving image to $SAVE_PATH ..."
@@ -114,3 +101,6 @@ if [[ -n "$SAVE_PATH" ]]; then
   docker save "$IMAGE_NAME:$IMAGE_TAG" | gzip > "$SAVE_PATH"
   echo "✅ Saved to $SAVE_PATH"
 fi
+
+echo "ℹ️  To use it in another Dockerfile:"
+echo "    FROM $IMAGE_NAME:$IMAGE_TAG"
