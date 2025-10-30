@@ -4,11 +4,13 @@ WORKDIR /app
 
 # Копируем только необходимые файлы
 COPY ./main.sh ./main.sh
+COPY ./publish.sh ./publish.sh
 COPY ./publisher.js ./publisher.js
 
 # Делаем скрипты исполняемыми
 RUN chmod +x ./main.sh \
-    && chmod +x ./publisher.js
+    && chmod +x ./publisher.js \
+    && chmod +x ./publish.sh
 
 RUN npm install -g node-gyp
 
